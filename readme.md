@@ -55,6 +55,10 @@ O contrato do formulário server-rendered para materiais gratuitos está documen
 
 A configuração global de API key e lista padrão Brevo está documentada em `docs/settings.md`.
 
+## Compatibilidade Elementor
+
+A action de formulário Elementor Pro e os nomes de controles preservados estão documentados em `docs/elementor-compatibility.md`.
+
 ## Status
 
 Projeto em desenvolvimento inicial. O bootstrap do plugin e o core de payload/client Brevo já foram iniciados; o plano de trabalho está em `docs/work-plan.md`.

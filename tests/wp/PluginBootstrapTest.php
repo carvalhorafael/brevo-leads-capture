@@ -22,4 +22,11 @@ class PluginBootstrapTest extends WP_UnitTestCase {
 	public function test_plugin_registers_textdomain_loader(): void {
 		$this->assertSame( 10, has_action( 'init', array( brevo_leads_capture(), 'load_textdomain' ) ) );
 	}
+
+	public function test_plugin_registers_elementor_action_callback(): void {
+		$this->assertSame(
+			10,
+			has_action( 'elementor_pro/forms/actions/register', array( brevo_leads_capture(), 'register_elementor_form_action' ) )
+		);
+	}
 }

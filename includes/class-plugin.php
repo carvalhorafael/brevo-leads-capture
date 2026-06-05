@@ -41,6 +41,7 @@ class Brevo_Leads_Capture_Plugin {
 		add_action( 'init', array( $this, 'load_textdomain' ) );
 		$this->settings->register_hooks();
 		$this->free_material_capture->register_hooks();
+		add_action( 'elementor_pro/forms/actions/register', array( $this, 'register_elementor_form_action' ) );
 	}
 
 	public function load_textdomain(): void {
@@ -57,5 +58,26 @@ class Brevo_Leads_Capture_Plugin {
 
 	public function free_material_capture(): Brevo_Leads_Capture_Free_Material_Capture {
 		return $this->free_material_capture;
+	}
+
+	/**
+	 * @param mixed $form_actions_registrar Elementor form actions registrar.
+	 */
+	public function register_elementor_form_action( $form_actions_registrar ): void {
+		if ( ! class_exists( '\ElementorPro\Modules\Forms\Classes\Action_Base' ) ) {
+			return;
+		}
+
+		require_once BREVO_LEADS_CAPTURE_DIR . 'includes/integrations/class-elementor-form-action.php';
+
+		if ( method_exists( $form_actions_registrar, 'register' ) ) {
+			$form_actions_registrar->register(
+				new Brevo_Leads_Capture_Elementor_Form_Action(
+					$this->settings,
+					new Brevo_Leads_Capture_Elementor_Form_Mapper(),
+					new Brevo_Leads_Capture_Lead_Payload()
+				)
+			);
+		}
 	}
 }

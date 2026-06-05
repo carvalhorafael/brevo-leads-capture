@@ -16,6 +16,7 @@ class Brevo_Leads_Capture_Lead_Payload {
 		'utm_campaign' => 'UTM_CAMPAIGN',
 		'utm_term'     => 'UTM_TERM',
 		'utm_content'  => 'UTM_CONTENT',
+		'utm_name'     => 'UTM_NAME',
 	);
 
 	/**
@@ -40,6 +41,15 @@ class Brevo_Leads_Capture_Lead_Payload {
 
 		foreach ( self::UTM_FIELDS as $input_key => $attribute_key ) {
 			$attributes[ $attribute_key ] = $this->clean_string( $input[ $input_key ] ?? '' );
+		}
+
+		if ( isset( $context['attributes'] ) && is_array( $context['attributes'] ) ) {
+			foreach ( $context['attributes'] as $attribute_key => $attribute_value ) {
+				$attribute_key = $this->normalize_attribute_key( $attribute_key );
+				if ( '' !== $attribute_key ) {
+					$attributes[ $attribute_key ] = $this->clean_string( $attribute_value );
+				}
+			}
 		}
 
 		$attributes = array_filter(
@@ -161,5 +171,19 @@ class Brevo_Leads_Capture_Lead_Payload {
 		}
 
 		return array_values( array_unique( $list_ids ) );
+	}
+
+	/**
+	 * @param mixed $key
+	 */
+	private function normalize_attribute_key( $key ): string {
+		if ( is_array( $key ) || is_object( $key ) ) {
+			return '';
+		}
+
+		$key = strtoupper( (string) $key );
+		$key = preg_replace( '/[^A-Z0-9_]/', '', $key );
+
+		return trim( (string) $key, '_' );
 	}
 }

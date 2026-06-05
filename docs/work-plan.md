@@ -12,7 +12,7 @@ Este plano transforma a especificação inicial em entregas pequenas, testáveis
 
 ## Fase 1: Bootstrap e core base
 
-Status: em andamento.
+Status: implementada.
 
 Entregas:
 
@@ -44,7 +44,7 @@ Entregas:
 
 ## Fase 3: Compatibilidade Elementor
 
-Status: pendente.
+Status: implementada.
 
 Entregas:
 
@@ -57,7 +57,7 @@ Entregas:
 
 ## Fase 4: Configuração e administração
 
-Status: parcialmente implementada.
+Status: implementada.
 
 Entregas:
 

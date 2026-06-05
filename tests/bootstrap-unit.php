@@ -14,3 +14,4 @@ require_once dirname( __DIR__ ) . '/includes/class-result.php';
 require_once dirname( __DIR__ ) . '/includes/class-settings.php';
 require_once dirname( __DIR__ ) . '/includes/class-lead-payload.php';
 require_once dirname( __DIR__ ) . '/includes/class-brevo-client.php';
+require_once dirname( __DIR__ ) . '/includes/integrations/class-elementor-form-mapper.php';
