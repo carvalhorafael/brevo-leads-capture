@@ -6,8 +6,10 @@
  * Requires at least: 6.4
  * Requires PHP: 8.1
  * Author: Rafael Carvalho
+ * Plugin URI: https://github.com/carvalhorafael/brevo-leads-capture
  * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Update URI: https://github.com/carvalhorafael/brevo-leads-capture
  * Text Domain: brevo-leads-capture
  * Domain Path: /languages
  *
@@ -28,6 +30,7 @@ require_once BREVO_LEADS_CAPTURE_DIR . 'includes/class-logger.php';
 require_once BREVO_LEADS_CAPTURE_DIR . 'includes/class-settings.php';
 require_once BREVO_LEADS_CAPTURE_DIR . 'includes/class-lead-payload.php';
 require_once BREVO_LEADS_CAPTURE_DIR . 'includes/class-brevo-client.php';
+require_once BREVO_LEADS_CAPTURE_DIR . 'includes/class-github-updater.php';
 require_once BREVO_LEADS_CAPTURE_DIR . 'includes/class-free-material-capture.php';
 require_once BREVO_LEADS_CAPTURE_DIR . 'includes/integrations/class-elementor-form-mapper.php';
 require_once BREVO_LEADS_CAPTURE_DIR . 'includes/class-plugin.php';

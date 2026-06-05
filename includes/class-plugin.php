@@ -18,12 +18,15 @@ class Brevo_Leads_Capture_Plugin {
 
 	private Brevo_Leads_Capture_Free_Material_Capture $free_material_capture;
 
+	private Brevo_Leads_Capture_GitHub_Updater $github_updater;
+
 	private Brevo_Leads_Capture_Logger $logger;
 
 	private function __construct() {
 		$this->logger                = new Brevo_Leads_Capture_Logger();
 		$this->settings              = new Brevo_Leads_Capture_Settings();
 		$this->free_material_capture = new Brevo_Leads_Capture_Free_Material_Capture( $this->settings, null, null, $this->logger );
+		$this->github_updater        = new Brevo_Leads_Capture_GitHub_Updater( BREVO_LEADS_CAPTURE_FILE, BREVO_LEADS_CAPTURE_VERSION );
 	}
 
 	public static function instance(): Brevo_Leads_Capture_Plugin {
@@ -44,6 +47,7 @@ class Brevo_Leads_Capture_Plugin {
 		add_action( 'init', array( $this, 'load_textdomain' ) );
 		$this->settings->register_hooks();
 		$this->free_material_capture->register_hooks();
+		$this->github_updater->register_hooks();
 		add_action( 'elementor_pro/forms/actions/register', array( $this, 'register_elementor_form_action' ) );
 	}
 
@@ -65,6 +69,10 @@ class Brevo_Leads_Capture_Plugin {
 
 	public function logger(): Brevo_Leads_Capture_Logger {
 		return $this->logger;
+	}
+
+	public function github_updater(): Brevo_Leads_Capture_GitHub_Updater {
+		return $this->github_updater;
 	}
 
 	/**

@@ -2,6 +2,10 @@
 
 Use este checklist antes de substituir o plugin antigo `elementor-form-brevo-action`.
 
+Para a migracao controlada dos formularios reais, use o procedimento completo em
+`docs/elementor-real-forms-migration.md`. Este arquivo continua como checklist
+rapido de compatibilidade por formulario.
+
 ## Antes da troca
 
 - Confirme que `brevo-leads-capture` está ativo.

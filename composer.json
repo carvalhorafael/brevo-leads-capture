@@ -16,6 +16,7 @@
     ]
   },
   "scripts": {
+    "package": "bash bin/build-package.sh",
     "test": "phpunit -c phpunit.xml.dist",
     "test:unit": "phpunit -c phpunit-unit.xml.dist",
     "test:wordpress": "phpunit -c phpunit.xml.dist",

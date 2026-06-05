@@ -74,4 +74,6 @@ Toda feature nova ou correção de bug deve incluir testes compatíveis com o ri
 - normalização de nome, WhatsApp, email e UTMs;
 - handlers de captura com nonce, honeypot, erro e redirecionamento;
 - adaptador Elementor preservando compatibilidade de action e controles;
+- update checker via GitHub Releases preservando o fluxo nativo de updates do
+  WordPress;
 - garantia de que chaves de API e dados sensíveis não aparecem em logs ou mensagens para usuário final.

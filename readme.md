@@ -61,11 +61,15 @@ A action de formulário Elementor Pro e os nomes de controles preservados estão
 
 ## Operação
 
-Instalação, contrato com o tema e migração Elementor:
+Instalação, contrato com o tema, migração Elementor e preparação de release:
 
 - `docs/installation.md`
 - `docs/theme-contract.md`
 - `docs/elementor-migration-checklist.md`
+- `docs/elementor-real-forms-migration.md`
+- `docs/release-preparation.md`
+- `docs/github-release-updates.md`
+- `CHANGELOG.md`
 
 ## Status
 
