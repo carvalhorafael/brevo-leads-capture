@@ -4,20 +4,20 @@ Plugin WordPress para centralizar capturas de leads no Brevo CRM.
 
 ## Objetivo
 
-O plugin deve receber dados de formularios WordPress, criar ou atualizar contatos no Brevo e adicionar esses contatos a listas especificas.
+O plugin deve receber dados de formulários WordPress, criar ou atualizar contatos no Brevo e adicionar esses contatos a listas específicas.
 
-O caso inicial e reaproveitar e evoluir o plugin existente `elementor-form-brevo-action`, que hoje adiciona uma action de formulario ao Elementor Pro. A nova versao deve continuar atendendo Elementor, mas tambem permitir captura de leads em outras interfaces, como a pagina de materiais gratuitos do tema `executive-signal-wordpress-theme`.
+O caso inicial deve continuar atendendo Elementor Pro, mas também permitir captura de leads em outras interfaces, como a página de materiais gratuitos do tema `executive-signal-wordpress-theme`. O contexto histórico de migração fica documentado em `docs/implementation-plan.md`.
 
 ## Casos de uso iniciais
 
-- Enviar leads de formularios Elementor Pro para uma lista Brevo.
-- Enviar leads do formulario de materiais gratuitos para uma lista Brevo.
-- Redirecionar usuarios para uma URL de entrega apos captura bem-sucedida.
+- Enviar leads de formulários Elementor Pro para uma lista Brevo.
+- Enviar leads do formulário de materiais gratuitos para uma lista Brevo.
+- Redirecionar usuários para uma URL de entrega após captura bem-sucedida.
 - Mapear campos como nome, email, WhatsApp, origem, material e UTMs para atributos do Brevo.
 
-## Integracao Brevo
+## Integração Brevo
 
-A integracao deve usar a API de contatos da Brevo:
+A integração deve usar a API de contatos da Brevo:
 
 - `POST https://api.brevo.com/v3/contacts`
 - header `api-key`
@@ -26,14 +26,51 @@ A integracao deve usar a API de contatos da Brevo:
 - `listIds`
 - `updateEnabled: true`
 
-O plugin deve manter a API key fora do codigo versionado.
+O plugin deve manter a API key fora do código versionado.
 
-## Relacao com o tema Executive Signal
+## Relação com o tema Executive Signal
 
-O tema `executive-signal-wordpress-theme` deve continuar responsavel por layout, templates e exibicao dos materiais gratuitos.
+O tema `executive-signal-wordpress-theme` deve continuar responsável por layout, templates e exibição dos materiais gratuitos.
 
-Este plugin deve ser responsavel pela captura e envio ao Brevo. O tema pode apontar o formulario para um endpoint do plugin e receber de volta o redirecionamento para a pagina ou URL de entrega do material.
+Este plugin deve ser responsável pela captura e envio ao Brevo. O tema pode apontar o formulário para um endpoint do plugin e receber de volta o redirecionamento para a página ou URL de entrega do material.
+
+## Desenvolvimento e testes
+
+O projeto usa PHPUnit com uma suíte unitária rápida e uma suíte integrada com o ambiente de testes do WordPress.
+
+```bash
+composer install
+composer test:unit
+composer install:wp-tests
+composer test
+```
+
+Mais detalhes estão em `docs/testing.md`.
+
+## Captura de materiais gratuitos
+
+O contrato do formulário server-rendered para materiais gratuitos está documentado em `docs/free-material-capture.md`.
+
+## Configurações globais
+
+A configuração global de API key e lista padrão Brevo está documentada em `docs/settings.md`.
+
+## Compatibilidade Elementor
+
+A action de formulário Elementor Pro e os nomes de controles preservados estão documentados em `docs/elementor-compatibility.md`.
+
+## Operação
+
+Instalação, contrato com o tema, migração Elementor e preparação de release:
+
+- `docs/installation.md`
+- `docs/theme-contract.md`
+- `docs/elementor-migration-checklist.md`
+- `docs/elementor-real-forms-migration.md`
+- `docs/release-preparation.md`
+- `docs/github-release-updates.md`
+- `CHANGELOG.md`
 
 ## Status
 
-Projeto em fase de especificacao inicial. Ainda nao ha codigo de plugin implementado nesta pasta.
+Plugin em desenvolvimento com core Brevo, captura de materiais gratuitos, compatibilidade Elementor, configurações globais e documentação operacional já implementados.
