@@ -54,3 +54,22 @@ Validação completa com WordPress test suite:
 ```bash
 composer test
 ```
+
+## Pacote de instalacao
+
+Para gerar um ZIP instalavel:
+
+```bash
+composer package
+```
+
+O pacote e gerado em `dist/` com uma pasta raiz `brevo-leads-capture/`.
+Antes de usar em producao, siga `docs/release-preparation.md`.
+
+## Atualizacoes pelo WordPress
+
+Depois da instalacao inicial por ZIP, novas versoes podem aparecer no painel de
+updates do WordPress quando houver uma GitHub Release publica com o asset ZIP do
+plugin.
+
+O fluxo esta documentado em `docs/github-release-updates.md`.
