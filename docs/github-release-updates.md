@@ -71,32 +71,27 @@ Esse workflow:
 4. adiciona uma entrada em `CHANGELOG.md`;
 5. abre ou atualiza uma PR `release/vX.Y.Z` para `develop`.
 
-Depois que a PR de release for mergeada em `develop`, publique a release:
+Depois que a PR de release for mergeada em `develop`, abra e mergeie a PR de
+`develop` para `main`. Quando `main` receber a versao preparada, o workflow
+`Release` roda automaticamente.
+
+O workflow `Release` cria a tag `vX.Y.Z` se ela ainda nao existir, valida
+Composer, roda testes, gera o ZIP e cria ou atualiza a GitHub Release.
+
+Tambem e possivel acionar o workflow manualmente a partir de `main`:
 
 ```bash
-gh workflow run release.yml --ref develop -f tag=v0.2.0 -f source_ref=develop -f create_tag=true
+gh workflow run release.yml --ref main -f tag=v0.2.0 -f source_ref=main -f create_tag=true
 ```
-
-O workflow `Release` cria a tag se ela ainda nao existir, valida Composer, roda
-testes, gera o ZIP e cria ou atualiza a GitHub Release.
-
-Tambem e possivel publicar a partir de uma tag ja enviada:
-
-```bash
-git tag -a v0.2.0 -m "Release v0.2.0"
-git push origin v0.2.0
-```
-
-Nesse caso, o workflow `.github/workflows/release.yml` roda automaticamente pelo
-push da tag.
 
 ## Papel do agente
 
 Quando o pedido for "vamos fazer uma release nova", o agente deve seguir o
-fluxo de `AGENTS.md`: acionar `Prepare Release`, acompanhar a PR de release e,
-depois do merge, acionar `Release`.
+fluxo de `AGENTS.md`: acionar `Prepare Release`, acompanhar a PR de release para
+`develop` e depois acompanhar a promocao de `develop` para `main`.
 
-Merges normais em `develop` nao publicam release automaticamente.
+Merges normais em `develop` nao publicam release automaticamente. A publicacao
+acontece quando a versao preparada chega em `main`.
 
 ## Requisitos importantes
 

@@ -126,7 +126,8 @@ Preparacao recomendada:
 
 - Acionar `Prepare Release` em `develop`.
 - Revisar e mergear a PR `release/vX.Y.Z`.
-- Acionar `Release` em `develop`.
+- Abrir e mergear a PR de `develop` para `main`.
+- Acompanhar o workflow `Release` disparado por `main`.
 - Conferir o asset ZIP na GitHub Release.
 
 Patch release padrao:
@@ -135,10 +136,10 @@ Patch release padrao:
 gh workflow run prepare-release.yml --ref develop -f bump=patch -f base_branch=develop
 ```
 
-Publicacao depois do merge da PR:
+Publicacao manual, se for necessario reprocessar uma versao ja em `main`:
 
 ```bash
-gh workflow run release.yml --ref develop -f tag=v0.1.0 -f source_ref=develop -f create_tag=true
+gh workflow run release.yml --ref main -f tag=v0.1.0 -f source_ref=main -f create_tag=true
 ```
 
 O fluxo completo de update pelo admin do WordPress esta em

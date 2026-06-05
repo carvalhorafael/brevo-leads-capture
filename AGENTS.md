@@ -132,15 +132,12 @@ gh workflow run prepare-release.yml --ref develop -f bump=patch -f base_branch=d
 ```
 
 4. Acompanhar o workflow e a PR `release/vX.Y.Z` criada por ele.
-5. Depois que a PR de release for mergeada em `develop`, publicar a release com:
-
-```bash
-gh workflow run release.yml --ref develop -f tag=vX.Y.Z -f source_ref=develop -f create_tag=true
-```
-
-6. Conferir que a GitHub Release recebeu o asset
+5. Depois que a PR de release for mergeada em `develop`, abrir ou acompanhar a
+   PR de `develop` para `main`.
+6. Depois que `develop` for mergeado em `main`, acompanhar o workflow `Release`,
+   que deve criar a tag `vX.Y.Z`, publicar a GitHub Release e anexar o ZIP.
+7. Conferir que a GitHub Release recebeu o asset
    `brevo-leads-capture-X.Y.Z.zip`.
 
-Merges normais em `develop` nao devem publicar release automaticamente. Release
-so acontece quando o usuario pedir explicitamente ou quando houver uma tarefa de
-preparacao de release.
+Merges normais em `develop` nao devem publicar release automaticamente. A
+publicacao acontece quando a versao preparada chega em `main`.
