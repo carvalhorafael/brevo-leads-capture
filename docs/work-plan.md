@@ -29,7 +29,7 @@ Entregas:
 
 ## Fase 2: Captura de materiais gratuitos
 
-Status: pendente.
+Status: implementada.
 
 Entregas:
 

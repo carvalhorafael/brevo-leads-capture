@@ -27,6 +27,7 @@ require_once BREVO_LEADS_CAPTURE_DIR . 'includes/class-result.php';
 require_once BREVO_LEADS_CAPTURE_DIR . 'includes/class-settings.php';
 require_once BREVO_LEADS_CAPTURE_DIR . 'includes/class-lead-payload.php';
 require_once BREVO_LEADS_CAPTURE_DIR . 'includes/class-brevo-client.php';
+require_once BREVO_LEADS_CAPTURE_DIR . 'includes/class-free-material-capture.php';
 require_once BREVO_LEADS_CAPTURE_DIR . 'includes/class-plugin.php';
 
 /**

@@ -47,6 +47,10 @@ composer test
 
 Mais detalhes estão em `docs/testing.md`.
 
+## Captura de materiais gratuitos
+
+O contrato do formulário server-rendered para materiais gratuitos está documentado em `docs/free-material-capture.md`.
+
 ## Status
 
 Projeto em desenvolvimento inicial. O bootstrap do plugin e o core de payload/client Brevo já foram iniciados; o plano de trabalho está em `docs/work-plan.md`.

@@ -16,8 +16,11 @@ class Brevo_Leads_Capture_Plugin {
 
 	private Brevo_Leads_Capture_Settings $settings;
 
+	private Brevo_Leads_Capture_Free_Material_Capture $free_material_capture;
+
 	private function __construct() {
-		$this->settings = new Brevo_Leads_Capture_Settings();
+		$this->settings              = new Brevo_Leads_Capture_Settings();
+		$this->free_material_capture = new Brevo_Leads_Capture_Free_Material_Capture( $this->settings );
 	}
 
 	public static function instance(): Brevo_Leads_Capture_Plugin {
@@ -36,6 +39,7 @@ class Brevo_Leads_Capture_Plugin {
 		$this->booted = true;
 
 		add_action( 'init', array( $this, 'load_textdomain' ) );
+		$this->free_material_capture->register_hooks();
 	}
 
 	public function load_textdomain(): void {
@@ -48,5 +52,9 @@ class Brevo_Leads_Capture_Plugin {
 
 	public function settings(): Brevo_Leads_Capture_Settings {
 		return $this->settings;
+	}
+
+	public function free_material_capture(): Brevo_Leads_Capture_Free_Material_Capture {
+		return $this->free_material_capture;
 	}
 }
