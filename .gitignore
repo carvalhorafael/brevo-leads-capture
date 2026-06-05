@@ -1,0 +1,42 @@
+# Environment and local secrets
+.env
+.env.*
+!.env.example
+*.local
+.npmrc
+
+# Dependency directories
+node_modules/
+vendor/
+
+# Build, cache, and coverage output
+dist/
+build/
+coverage/
+.phpunit.cache/
+.phpunit.result.cache
+.cache/
+
+# Logs and dumps
+*.log
+*.sql
+*.sqlite
+*.sqlite3
+*.dump
+*.bak
+*.backup
+
+# WordPress runtime content
+wp-config.php
+wp-content/uploads/
+wp-content/upgrade/
+wp-content/cache/
+wp-content/debug.log
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
