@@ -59,7 +59,7 @@ class GitHubUpdaterTest extends WP_UnitTestCase {
 
 		$filtered = $updater->filter_update_plugins( $transient );
 
-		$this->assertObjectNotHasAttribute( 'response', $filtered );
+		$this->assertFalse( property_exists( $filtered, 'response' ) );
 	}
 
 	public function test_plugin_information_uses_latest_release_metadata(): void {
