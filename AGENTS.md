@@ -114,3 +114,33 @@ git branch -vv
 
 Se o checkout estiver em `main`, criar uma branch de trabalho antes de alterar
 codigo, salvo se a tarefa for explicitamente preparacao de release.
+
+## Fluxo de release
+
+Quando o usuario pedir uma nova release sem especificar passos, o agente deve
+tocar o fluxo abaixo e nao depender de memoria do usuario:
+
+1. Confirmar que a preparacao deve partir de `develop`, buscar `origin` e
+   sincronizar `develop`.
+2. Se o usuario nao informar versao, usar bump `patch` por padrao; usar `minor`
+   para novas capacidades relevantes e `major` apenas para quebra deliberada de
+   compatibilidade.
+3. Acionar o workflow `Prepare Release` em `develop`, por exemplo:
+
+```bash
+gh workflow run prepare-release.yml --ref develop -f bump=patch -f base_branch=develop
+```
+
+4. Acompanhar o workflow e a PR `release/vX.Y.Z` criada por ele.
+5. Depois que a PR de release for mergeada em `develop`, publicar a release com:
+
+```bash
+gh workflow run release.yml --ref develop -f tag=vX.Y.Z -f source_ref=develop -f create_tag=true
+```
+
+6. Conferir que a GitHub Release recebeu o asset
+   `brevo-leads-capture-X.Y.Z.zip`.
+
+Merges normais em `develop` nao devem publicar release automaticamente. Release
+so acontece quando o usuario pedir explicitamente ou quando houver uma tarefa de
+preparacao de release.

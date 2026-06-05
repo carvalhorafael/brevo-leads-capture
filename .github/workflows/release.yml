@@ -10,6 +10,16 @@ on:
         description: 'Tag to release, for example v0.1.0'
         required: true
         type: string
+      source_ref:
+        description: 'Source ref used when creating a missing tag manually'
+        required: true
+        default: develop
+        type: string
+      create_tag:
+        description: 'Create the tag from source_ref when it does not exist'
+        required: true
+        default: true
+        type: boolean
 
 permissions:
   contents: write
@@ -54,7 +64,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          ref: ${{ steps.release.outputs.tag }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.source_ref || steps.release.outputs.tag }}
+          fetch-depth: 0
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -83,6 +94,21 @@ jobs:
             echo "BREVO_LEADS_CAPTURE_VERSION ${constant_version} does not match tag ${{ steps.release.outputs.tag }}." >&2
             exit 1
           fi
+
+      - name: Create release tag when requested
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.create_tag }}
+        run: |
+          tag="${{ steps.release.outputs.tag }}"
+
+          if git ls-remote --exit-code --tags origin "refs/tags/${tag}" >/dev/null 2>&1; then
+            echo "Tag ${tag} already exists."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "${tag}" -m "Release ${tag}"
+          git push origin "${tag}"
 
       - name: Validate Composer configuration
         run: composer validate --strict

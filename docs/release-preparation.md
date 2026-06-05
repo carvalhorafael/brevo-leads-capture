@@ -122,23 +122,27 @@ Em um WordPress de staging:
 
 ## Checklist de versao
 
-Antes de publicar uma tag:
+Preparacao recomendada:
 
-- Atualizar `Version` em `brevo-leads-capture.php`.
-- Atualizar `BREVO_LEADS_CAPTURE_VERSION`.
-- Atualizar `CHANGELOG.md`.
-- Rodar validacoes completas.
-- Fazer merge da preparacao de release na branch base.
-- Criar tag anotada, por exemplo:
+- Acionar `Prepare Release` em `develop`.
+- Revisar e mergear a PR `release/vX.Y.Z`.
+- Acionar `Release` em `develop`.
+- Conferir o asset ZIP na GitHub Release.
+
+Patch release padrao:
 
 ```bash
-git tag -a v0.1.0 -m "Release v0.1.0"
-git push origin v0.1.0
+gh workflow run prepare-release.yml --ref develop -f bump=patch -f base_branch=develop
 ```
 
-Depois do push da tag, o workflow `.github/workflows/release.yml` valida,
-empacota e publica o ZIP na GitHub Release. O fluxo completo de update pelo
-admin do WordPress esta em `docs/github-release-updates.md`.
+Publicacao depois do merge da PR:
+
+```bash
+gh workflow run release.yml --ref develop -f tag=v0.1.0 -f source_ref=develop -f create_tag=true
+```
+
+O fluxo completo de update pelo admin do WordPress esta em
+`docs/github-release-updates.md`.
 
 ## Bloqueadores conhecidos para producao
 

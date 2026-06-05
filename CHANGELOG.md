@@ -14,6 +14,8 @@ Todas as mudancas relevantes deste projeto devem ser documentadas aqui.
   WordPress depois da instalacao inicial por ZIP.
 - Adiciona workflow de GitHub Actions para validar, empacotar e publicar o ZIP
   como asset da release.
+- Adiciona workflow de preparacao de release para calcular bump, atualizar
+  versoes e abrir PR de release.
 - Adiciona logs tecnicos com redaction quando `WP_DEBUG` esta ativo.
 - Adiciona suites unitarias e integradas com WordPress.
 - Adiciona documentacao operacional para instalacao, tema, settings, testes,
