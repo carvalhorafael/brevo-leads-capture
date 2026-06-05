@@ -69,4 +69,4 @@ Instalação, contrato com o tema e migração Elementor:
 
 ## Status
 
-Projeto em desenvolvimento inicial. O bootstrap do plugin e o core de payload/client Brevo já foram iniciados; o plano de trabalho está em `docs/work-plan.md`.
+Plugin em desenvolvimento com core Brevo, captura de materiais gratuitos, compatibilidade Elementor, configurações globais e documentação operacional já implementados.
