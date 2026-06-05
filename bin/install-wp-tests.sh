@@ -54,8 +54,6 @@ install_test_suite() {
 	local includes_dir="${WP_TESTS_DIR}/includes"
 	local data_dir="${WP_TESTS_DIR}/data"
 
-	mkdir -p "$includes_dir" "$data_dir"
-
 	local svn_url="https://develop.svn.wordpress.org"
 	if [ "$WP_VERSION" = "latest" ]; then
 		svn_url="${svn_url}/trunk"
@@ -64,8 +62,8 @@ install_test_suite() {
 	fi
 
 	if command -v svn >/dev/null 2>&1; then
-		svn export --quiet "${svn_url}/tests/phpunit/includes/" "$includes_dir"
-		svn export --quiet "${svn_url}/tests/phpunit/data/" "$data_dir"
+		svn export --force --quiet "${svn_url}/tests/phpunit/includes/" "$includes_dir"
+		svn export --force --quiet "${svn_url}/tests/phpunit/data/" "$data_dir"
 	else
 		echo "svn is required to install the WordPress PHPUnit test suite." >&2
 		exit 1
