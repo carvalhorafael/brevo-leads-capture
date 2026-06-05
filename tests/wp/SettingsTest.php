@@ -72,4 +72,23 @@ class SettingsTest extends WP_UnitTestCase {
 		$this->assertSame( 'new-api-key', $sanitized['api_key'] );
 		$this->assertSame( 321, $sanitized['default_list_id'] );
 	}
+
+	public function test_status_panel_does_not_render_api_key_value(): void {
+		update_option(
+			Brevo_Leads_Capture_Settings::OPTION_SETTINGS,
+			array(
+				'api_key'         => 'secret-api-key',
+				'default_list_id' => 123,
+			)
+		);
+
+		ob_start();
+		$this->settings->render_status_panel();
+		$output = (string) ob_get_clean();
+
+		$this->assertStringContainsString( 'Status da configuração', $output );
+		$this->assertStringContainsString( 'Configurada', $output );
+		$this->assertStringContainsString( '123', $output );
+		$this->assertStringNotContainsString( 'secret-api-key', $output );
+	}
 }

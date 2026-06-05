@@ -23,6 +23,8 @@ class Brevo_Leads_Capture_Free_Material_Capture {
 
 	private Brevo_Leads_Capture_Lead_Payload $payload_builder;
 
+	private Brevo_Leads_Capture_Logger $logger;
+
 	/**
 	 * @var callable|null
 	 */
@@ -34,11 +36,13 @@ class Brevo_Leads_Capture_Free_Material_Capture {
 	public function __construct(
 		Brevo_Leads_Capture_Settings $settings,
 		?Brevo_Leads_Capture_Lead_Payload $payload_builder = null,
-		?callable $client_factory = null
+		?callable $client_factory = null,
+		?Brevo_Leads_Capture_Logger $logger = null
 	) {
 		$this->settings        = $settings;
 		$this->payload_builder = $payload_builder ?: new Brevo_Leads_Capture_Lead_Payload();
 		$this->client_factory  = $client_factory;
+		$this->logger          = $logger ?: new Brevo_Leads_Capture_Logger();
 	}
 
 	public function register_hooks(): void {
@@ -107,6 +111,17 @@ class Brevo_Leads_Capture_Free_Material_Capture {
 
 		$brevo_result = $this->client()->create_or_update_contact( $payload );
 		if ( ! $brevo_result->is_successful() ) {
+			$this->logger->debug(
+				'Free material Brevo request failed.',
+				array(
+					'material_id' => $material_id,
+					'list_id'     => $list_id,
+					'status_code' => $brevo_result->status_code(),
+					'payload'     => $payload,
+					'body'        => $brevo_result->data(),
+				)
+			);
+
 			return $this->failure( 'brevo_error', $material_id );
 		}
 

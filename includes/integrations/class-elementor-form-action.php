@@ -16,14 +16,18 @@ class Brevo_Leads_Capture_Elementor_Form_Action extends \ElementorPro\Modules\Fo
 
 	private Brevo_Leads_Capture_Lead_Payload $payload_builder;
 
+	private Brevo_Leads_Capture_Logger $logger;
+
 	public function __construct(
 		Brevo_Leads_Capture_Settings $settings,
 		Brevo_Leads_Capture_Elementor_Form_Mapper $mapper,
-		Brevo_Leads_Capture_Lead_Payload $payload_builder
+		Brevo_Leads_Capture_Lead_Payload $payload_builder,
+		?Brevo_Leads_Capture_Logger $logger = null
 	) {
 		$this->settings        = $settings;
 		$this->mapper          = $mapper;
 		$this->payload_builder = $payload_builder;
+		$this->logger          = $logger ?: new Brevo_Leads_Capture_Logger();
 	}
 
 	public function get_name(): string {
@@ -107,6 +111,15 @@ class Brevo_Leads_Capture_Elementor_Form_Action extends \ElementorPro\Modules\Fo
 			$ajax_handler->add_success_message( esc_html__( 'Contato adicionado ao Brevo.', 'brevo-leads-capture' ) );
 			return;
 		}
+
+		$this->logger->debug(
+			'Elementor Brevo request failed.',
+			array(
+				'status_code' => $result->status_code(),
+				'payload'     => $payload,
+				'body'        => $result->data(),
+			)
+		);
 
 		$ajax_handler->add_error_message( esc_html__( 'Erro ao adicionar contato ao Brevo. Tente novamente.', 'brevo-leads-capture' ) );
 	}

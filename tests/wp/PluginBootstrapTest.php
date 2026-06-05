@@ -17,6 +17,7 @@ class PluginBootstrapTest extends WP_UnitTestCase {
 		$this->assertTrue( defined( 'BREVO_LEADS_CAPTURE_FILE' ) );
 		$this->assertTrue( defined( 'BREVO_LEADS_CAPTURE_DIR' ) );
 		$this->assertTrue( function_exists( 'brevo_leads_capture' ) );
+		$this->assertInstanceOf( Brevo_Leads_Capture_Logger::class, brevo_leads_capture()->logger() );
 	}
 
 	public function test_plugin_registers_textdomain_loader(): void {

@@ -69,7 +69,7 @@ Entregas:
 
 ## Fase 5: Hardening e documentação de uso
 
-Status: pendente.
+Status: implementada.
 
 Entregas:
 

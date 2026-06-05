@@ -18,9 +18,12 @@ class Brevo_Leads_Capture_Plugin {
 
 	private Brevo_Leads_Capture_Free_Material_Capture $free_material_capture;
 
+	private Brevo_Leads_Capture_Logger $logger;
+
 	private function __construct() {
+		$this->logger                = new Brevo_Leads_Capture_Logger();
 		$this->settings              = new Brevo_Leads_Capture_Settings();
-		$this->free_material_capture = new Brevo_Leads_Capture_Free_Material_Capture( $this->settings );
+		$this->free_material_capture = new Brevo_Leads_Capture_Free_Material_Capture( $this->settings, null, null, $this->logger );
 	}
 
 	public static function instance(): Brevo_Leads_Capture_Plugin {
@@ -58,6 +61,10 @@ class Brevo_Leads_Capture_Plugin {
 
 	public function free_material_capture(): Brevo_Leads_Capture_Free_Material_Capture {
 		return $this->free_material_capture;
+	}
+
+	public function logger(): Brevo_Leads_Capture_Logger {
+		return $this->logger;
 	}
 
 	/**

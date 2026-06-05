@@ -59,6 +59,14 @@ A configuração global de API key e lista padrão Brevo está documentada em `d
 
 A action de formulário Elementor Pro e os nomes de controles preservados estão documentados em `docs/elementor-compatibility.md`.
 
+## Operação
+
+Instalação, contrato com o tema e migração Elementor:
+
+- `docs/installation.md`
+- `docs/theme-contract.md`
+- `docs/elementor-migration-checklist.md`
+
 ## Status
 
 Projeto em desenvolvimento inicial. O bootstrap do plugin e o core de payload/client Brevo já foram iniciados; o plano de trabalho está em `docs/work-plan.md`.

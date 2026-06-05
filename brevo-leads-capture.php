@@ -24,6 +24,7 @@ define( 'BREVO_LEADS_CAPTURE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BREVO_LEADS_CAPTURE_BASENAME', plugin_basename( __FILE__ ) );
 
 require_once BREVO_LEADS_CAPTURE_DIR . 'includes/class-result.php';
+require_once BREVO_LEADS_CAPTURE_DIR . 'includes/class-logger.php';
 require_once BREVO_LEADS_CAPTURE_DIR . 'includes/class-settings.php';
 require_once BREVO_LEADS_CAPTURE_DIR . 'includes/class-lead-payload.php';
 require_once BREVO_LEADS_CAPTURE_DIR . 'includes/class-brevo-client.php';

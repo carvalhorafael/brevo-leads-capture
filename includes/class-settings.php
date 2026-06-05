@@ -126,6 +126,7 @@ class Brevo_Leads_Capture_Settings {
 		?>
 		<div class="wrap">
 			<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+			<?php $this->render_status_panel(); ?>
 			<form action="options.php" method="post">
 				<?php
 				settings_fields( self::SETTINGS_GROUP );
@@ -133,6 +134,25 @@ class Brevo_Leads_Capture_Settings {
 				submit_button( __( 'Salvar configurações', 'brevo-leads-capture' ) );
 				?>
 			</form>
+		</div>
+		<?php
+	}
+
+	public function render_status_panel(): void {
+		$api_key_status = $this->has_api_key()
+			? __( 'Configurada', 'brevo-leads-capture' )
+			: __( 'Não configurada', 'brevo-leads-capture' );
+		$list_status = 0 < $this->default_list_id()
+			? (string) $this->default_list_id()
+			: __( 'Não configurada', 'brevo-leads-capture' );
+		?>
+		<div class="notice notice-info inline">
+			<p><strong><?php echo esc_html__( 'Status da configuração', 'brevo-leads-capture' ); ?></strong></p>
+			<ul>
+				<li><?php echo esc_html__( 'API key:', 'brevo-leads-capture' ) . ' ' . esc_html( $api_key_status ); ?></li>
+				<li><?php echo esc_html__( 'Lista padrão:', 'brevo-leads-capture' ) . ' ' . esc_html( $list_status ); ?></li>
+				<li><?php echo esc_html__( 'Logs técnicos:', 'brevo-leads-capture' ) . ' ' . esc_html( ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ? __( 'Ativos via WP_DEBUG', 'brevo-leads-capture' ) : __( 'Inativos', 'brevo-leads-capture' ) ); ?></li>
+			</ul>
 		</div>
 		<?php
 	}
