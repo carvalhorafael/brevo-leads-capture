@@ -47,6 +47,26 @@ composer test
 
 Mais detalhes estão em `docs/testing.md`.
 
+## Captura de materiais gratuitos
+
+O contrato do formulário server-rendered para materiais gratuitos está documentado em `docs/free-material-capture.md`.
+
+## Configurações globais
+
+A configuração global de API key e lista padrão Brevo está documentada em `docs/settings.md`.
+
+## Compatibilidade Elementor
+
+A action de formulário Elementor Pro e os nomes de controles preservados estão documentados em `docs/elementor-compatibility.md`.
+
+## Operação
+
+Instalação, contrato com o tema e migração Elementor:
+
+- `docs/installation.md`
+- `docs/theme-contract.md`
+- `docs/elementor-migration-checklist.md`
+
 ## Status
 
-Projeto em fase de especificação inicial. Ainda não há código de plugin implementado nesta pasta.
+Plugin em desenvolvimento com core Brevo, captura de materiais gratuitos, compatibilidade Elementor, configurações globais e documentação operacional já implementados.
