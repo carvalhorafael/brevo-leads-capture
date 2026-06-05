@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<phpunit
+	bootstrap="tests/bootstrap.php"
+	backupGlobals="false"
+	colors="true"
+	convertErrorsToExceptions="true"
+	convertNoticesToExceptions="true"
+	convertWarningsToExceptions="true"
+	>
+	<testsuites>
+		<testsuite name="wordpress">
+			<directory suffix="Test.php">tests/wp</directory>
+		</testsuite>
+	</testsuites>
+	<coverage processUncoveredFiles="true">
+		<include>
+			<directory suffix=".php">includes</directory>
+			<file>brevo-leads-capture.php</file>
+		</include>
+	</coverage>
+</phpunit>

@@ -22,6 +22,24 @@ implementacao, decisoes pendentes e contexto historico de migracao.
 - Ao alterar strings visiveis, atualize arquivos de traducao se o projeto ja
   tiver pipeline de i18n.
 
+## Testes automatizados
+
+- Todo desenvolvimento de feature ou correcao de bug deve ser acompanhado por
+  testes automatizados proporcionais ao risco da mudanca.
+- Prefira testes unitarios para normalizacao, validacao, montagem de payload,
+  classes de resultado e regras puras de negocio.
+- Use testes com a suite oficial do WordPress para hooks, handlers
+  `admin-post.php`, REST API, options, nonces, sanitizacao integrada e
+  adaptadores que dependem do runtime WordPress.
+- Ao alterar integracoes externas, cubra respostas de sucesso, falhas HTTP,
+  `WP_Error`, payload invalido e garantia de que segredos nao aparecem em logs
+  ou mensagens para usuario final.
+- A CI do GitHub Actions deve permanecer verde antes de merge. Se um teste for
+  removido ou relaxado, documente no PR o motivo tecnico.
+- Use `composer test:unit` para validacao rapida sem WordPress e `composer test`
+  para a suite integrada completa quando o ambiente de testes WordPress estiver
+  instalado.
+
 ## Boas praticas para plugin WordPress
 
 - Nao colocar funcionalidades de negocio em temas quando elas precisam

@@ -34,6 +34,19 @@ O tema `executive-signal-wordpress-theme` deve continuar responsável por layout
 
 Este plugin deve ser responsável pela captura e envio ao Brevo. O tema pode apontar o formulário para um endpoint do plugin e receber de volta o redirecionamento para a página ou URL de entrega do material.
 
+## Desenvolvimento e testes
+
+O projeto usa PHPUnit com uma suíte unitária rápida e uma suíte integrada com o ambiente de testes do WordPress.
+
+```bash
+composer install
+composer test:unit
+composer install:wp-tests
+composer test
+```
+
+Mais detalhes estão em `docs/testing.md`.
+
 ## Status
 
 Projeto em fase de especificação inicial. Ainda não há código de plugin implementado nesta pasta.
