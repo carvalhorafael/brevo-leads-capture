@@ -51,6 +51,10 @@ Mais detalhes estão em `docs/testing.md`.
 
 O contrato do formulário server-rendered para materiais gratuitos está documentado em `docs/free-material-capture.md`.
 
+## Configurações globais
+
+A configuração global de API key e lista padrão Brevo está documentada em `docs/settings.md`.
+
 ## Status
 
 Projeto em desenvolvimento inicial. O bootstrap do plugin e o core de payload/client Brevo já foram iniciados; o plano de trabalho está em `docs/work-plan.md`.

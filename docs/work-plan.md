@@ -57,13 +57,13 @@ Entregas:
 
 ## Fase 4: Configuração e administração
 
-Status: pendente.
+Status: parcialmente implementada.
 
 Entregas:
 
 - decisão entre constante, option ou ambos para API key;
 - list ID padrão;
-- tela administrativa apenas se necessária;
+- tela administrativa global em `Configurações > Brevo Leads Capture`;
 - validação de capabilities e nonces;
 - mensagens administrativas sem expor segredos.
 

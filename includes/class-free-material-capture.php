@@ -256,7 +256,7 @@ class Brevo_Leads_Capture_Free_Material_Capture {
 	 * @param mixed $value
 	 */
 	private function absint( $value ): int {
-		return absint( $value );
+		return max( 0, (int) $value );
 	}
 
 	/**

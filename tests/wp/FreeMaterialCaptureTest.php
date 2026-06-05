@@ -124,6 +124,15 @@ class FreeMaterialCaptureTest extends WP_UnitTestCase {
 		$this->assertNull( $this->client->last_payload );
 	}
 
+	public function test_rejects_negative_material_id_without_calling_brevo(): void {
+		$result = $this->capture->process_submission( $this->valid_request( -123 ) );
+
+		$this->assertFalse( $result->is_successful() );
+		$this->assertSame( 'invalid_material', $result->data()['code'] );
+		$this->assertSame( 0, $result->data()['material_id'] );
+		$this->assertNull( $this->client->last_payload );
+	}
+
 	public function test_rejects_invalid_email_without_calling_brevo(): void {
 		$material_id = $this->create_material();
 

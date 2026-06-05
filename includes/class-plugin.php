@@ -39,6 +39,7 @@ class Brevo_Leads_Capture_Plugin {
 		$this->booted = true;
 
 		add_action( 'init', array( $this, 'load_textdomain' ) );
+		$this->settings->register_hooks();
 		$this->free_material_capture->register_hooks();
 	}
 
