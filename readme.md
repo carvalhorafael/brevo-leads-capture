@@ -49,4 +49,4 @@ Mais detalhes estão em `docs/testing.md`.
 
 ## Status
 
-Projeto em fase de especificação inicial. Ainda não há código de plugin implementado nesta pasta.
+Projeto em desenvolvimento inicial. O bootstrap do plugin e o core de payload/client Brevo já foram iniciados; o plano de trabalho está em `docs/work-plan.md`.
