@@ -6,7 +6,7 @@ Plugin WordPress para centralizar capturas de leads no Brevo CRM.
 
 O plugin deve receber dados de formularios WordPress, criar ou atualizar contatos no Brevo e adicionar esses contatos a listas especificas.
 
-O caso inicial e reaproveitar e evoluir o plugin existente `elementor-form-brevo-action`, que hoje adiciona uma action de formulario ao Elementor Pro. A nova versao deve continuar atendendo Elementor, mas tambem permitir captura de leads em outras interfaces, como a pagina de materiais gratuitos do tema `executive-signal-wordpress-theme`.
+O caso inicial deve continuar atendendo Elementor Pro, mas tambem permitir captura de leads em outras interfaces, como a pagina de materiais gratuitos do tema `executive-signal-wordpress-theme`. O contexto historico de migracao fica documentado em `docs/implementation-plan.md`.
 
 ## Casos de uso iniciais
 
