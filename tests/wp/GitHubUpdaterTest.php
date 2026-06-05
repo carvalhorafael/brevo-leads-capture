@@ -72,6 +72,7 @@ class GitHubUpdaterTest extends WP_UnitTestCase {
 		$args       = (object) array( 'slug' => 'brevo-leads-capture' );
 		$plugin_api = $updater->filter_plugin_information( false, 'plugin_information', $args );
 
+		$this->assertIsObject( $plugin_api );
 		$this->assertSame( 'Brevo Leads Capture', $plugin_api->name );
 		$this->assertSame( '0.2.0', $plugin_api->version );
 		$this->assertSame(

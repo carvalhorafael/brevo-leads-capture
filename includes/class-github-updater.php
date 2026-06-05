@@ -235,8 +235,6 @@ class Brevo_Leads_Capture_GitHub_Updater {
 	}
 
 	private function plugin_slug(): string {
-		$directory = dirname( $this->plugin_basename );
-
-		return '.' === $directory ? basename( $this->plugin_basename, '.php' ) : $directory;
+		return basename( $this->plugin_basename, '.php' );
 	}
 }
