@@ -150,8 +150,25 @@ class Brevo_Leads_Capture_Lead_Payload {
 
 		$prefix = str_starts_with( $value, '+' ) ? '+' : '';
 		$digits = preg_replace( '/\D+/', '', $value );
+		$digits = (string) $digits;
 
-		return $prefix . (string) $digits;
+		if ( '' === $digits ) {
+			return '';
+		}
+
+		if ( '+' === $prefix ) {
+			return '+' . $digits;
+		}
+
+		if ( str_starts_with( $digits, '55' ) && in_array( strlen( $digits ), array( 12, 13 ), true ) ) {
+			return '+' . $digits;
+		}
+
+		if ( in_array( strlen( $digits ), array( 10, 11 ), true ) ) {
+			return '+55' . $digits;
+		}
+
+		return $digits;
 	}
 
 	/**

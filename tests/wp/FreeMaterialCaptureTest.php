@@ -86,6 +86,7 @@ class FreeMaterialCaptureTest extends WP_UnitTestCase {
 
 		$this->assertTrue( $result->is_successful() );
 		$this->assertSame( 'https://example.com/download', $result->data()['redirect_url'] );
+		$this->assertTrue( $result->data()['allow_external_redirect'] );
 		$this->assertSame( 'rafael@example.com', $this->client->last_payload['email'] );
 		$this->assertSame( array( 123 ), $this->client->last_payload['listIds'] );
 		$this->assertSame( 'free_material', $this->client->last_payload['attributes']['SOURCE'] );
@@ -166,7 +167,18 @@ class FreeMaterialCaptureTest extends WP_UnitTestCase {
 
 	public function test_returns_controlled_error_when_brevo_fails(): void {
 		$this->client = new Brevo_Leads_Capture_Test_Client(
-			Brevo_Leads_Capture_Result::failure( 400, 'Brevo request returned an error.', array( 'body' => array( 'api-key' => 'secret' ) ) )
+			Brevo_Leads_Capture_Result::failure(
+				400,
+				'Brevo request returned an error.',
+				array(
+					'body'          => array( 'api-key' => 'secret' ),
+					'error_summary' => array(
+						'status_code' => 400,
+						'code'        => 'invalid_parameter',
+						'message'     => 'Attribute SOURCE does not exist.',
+					),
+				)
+			)
 		);
 		$this->capture = new Brevo_Leads_Capture_Free_Material_Capture(
 			brevo_leads_capture()->settings(),
@@ -178,8 +190,10 @@ class FreeMaterialCaptureTest extends WP_UnitTestCase {
 		$result = $this->capture->process_submission( $this->valid_request( $material_id ) );
 
 		$this->assertFalse( $result->is_successful() );
-		$this->assertSame( 'brevo_error', $result->data()['code'] );
+		$this->assertSame( 'brevo_invalid_parameter', $result->data()['code'] );
+		$this->assertArrayNotHasKey( 'allow_external_redirect', $result->data() );
 		$this->assertStringContainsString( 'brevo_leads_capture=error', $result->data()['redirect_url'] );
+		$this->assertStringContainsString( 'brevo_error=brevo_invalid_parameter', $result->data()['redirect_url'] );
 		$this->assertStringNotContainsString( 'secret', $result->message() );
 		$this->assertStringNotContainsString( 'secret', $result->data()['redirect_url'] );
 	}
