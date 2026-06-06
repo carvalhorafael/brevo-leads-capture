@@ -41,6 +41,11 @@ class Brevo_Leads_Capture_Logger {
 
 			if ( is_array( $value ) ) {
 				$context[ $key ] = $this->redact_context( $value );
+				continue;
+			}
+
+			if ( is_string( $value ) ) {
+				$context[ $key ] = $this->redact_sensitive_fragments( $value );
 			}
 		}
 
@@ -57,5 +62,12 @@ class Brevo_Leads_Capture_Logger {
 		}
 
 		return false;
+	}
+
+	private function redact_sensitive_fragments( string $value ): string {
+		$value = preg_replace( '/[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}/i', self::REDACTED, $value );
+		$value = preg_replace( '/\+?\d[\d\s().-]{7,}\d/', self::REDACTED, (string) $value );
+
+		return (string) $value;
 	}
 }

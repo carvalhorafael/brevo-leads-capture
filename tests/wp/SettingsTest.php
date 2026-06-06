@@ -73,6 +73,53 @@ class SettingsTest extends WP_UnitTestCase {
 		$this->assertSame( 321, $sanitized['default_list_id'] );
 	}
 
+	public function test_sanitize_options_accepts_custom_error_messages(): void {
+		$sanitized = $this->settings->sanitize_options(
+			array(
+				'api_key'         => '',
+				'default_list_id' => '0',
+				'success_message' => '<strong>Você será redirecionado.</strong>',
+				'error_messages'  => array(
+					'invalid_lead' => " Revise o e-mail informado.\nTente novamente. ",
+					'brevo_error'  => '<strong>Tente novamente mais tarde.</strong>',
+					'unknown_code'  => 'Ignored.',
+				),
+			)
+		);
+
+		$this->assertSame( "Revise o e-mail informado.\nTente novamente.", $sanitized['error_messages']['invalid_lead'] );
+		$this->assertSame( 'Tente novamente mais tarde.', $sanitized['error_messages']['brevo_error'] );
+		$this->assertSame( 'Você será redirecionado.', $sanitized['success_message'] );
+		$this->assertArrayNotHasKey( 'unknown_code', $sanitized['error_messages'] );
+	}
+
+	public function test_error_message_uses_custom_text_and_falls_back_to_default(): void {
+		update_option(
+			Brevo_Leads_Capture_Settings::OPTION_SETTINGS,
+			array(
+				'error_messages' => array(
+					'invalid_lead' => 'Revise o e-mail informado.',
+				),
+			)
+		);
+
+		$this->assertSame( 'Revise o e-mail informado.', $this->settings->error_message( 'invalid_lead' ) );
+		$this->assertSame( $this->settings->error_message( 'brevo_error' ), $this->settings->error_message( 'unknown_code' ) );
+	}
+
+	public function test_success_message_uses_custom_text_and_falls_back_to_default(): void {
+		$this->assertStringContainsString( 'Você será redirecionado', $this->settings->success_message() );
+
+		update_option(
+			Brevo_Leads_Capture_Settings::OPTION_SETTINGS,
+			array(
+				'success_message' => 'Tudo certo. Redirecionando para o material.',
+			)
+		);
+
+		$this->assertSame( 'Tudo certo. Redirecionando para o material.', $this->settings->success_message() );
+	}
+
 	public function test_status_panel_does_not_render_api_key_value(): void {
 		update_option(
 			Brevo_Leads_Capture_Settings::OPTION_SETTINGS,

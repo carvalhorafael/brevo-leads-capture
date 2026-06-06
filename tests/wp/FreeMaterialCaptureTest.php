@@ -86,6 +86,7 @@ class FreeMaterialCaptureTest extends WP_UnitTestCase {
 
 		$this->assertTrue( $result->is_successful() );
 		$this->assertSame( 'https://example.com/download', $result->data()['redirect_url'] );
+		$this->assertTrue( $result->data()['allow_external_redirect'] );
 		$this->assertSame( 'rafael@example.com', $this->client->last_payload['email'] );
 		$this->assertSame( array( 123 ), $this->client->last_payload['listIds'] );
 		$this->assertSame( 'free_material', $this->client->last_payload['attributes']['SOURCE'] );
@@ -135,6 +136,14 @@ class FreeMaterialCaptureTest extends WP_UnitTestCase {
 
 	public function test_rejects_invalid_email_without_calling_brevo(): void {
 		$material_id = $this->create_material();
+		update_option(
+			Brevo_Leads_Capture_Settings::OPTION_SETTINGS,
+			array(
+				'error_messages' => array(
+					'invalid_lead' => 'Revise o e-mail informado.',
+				),
+			)
+		);
 
 		$result = $this->capture->process_submission(
 			$this->valid_request(
@@ -145,7 +154,117 @@ class FreeMaterialCaptureTest extends WP_UnitTestCase {
 
 		$this->assertFalse( $result->is_successful() );
 		$this->assertSame( 'invalid_lead', $result->data()['code'] );
+		$this->assertSame( 'Revise o e-mail informado.', $result->data()['message'] );
 		$this->assertNull( $this->client->last_payload );
+	}
+
+	public function test_current_error_message_uses_query_string_and_configured_copy(): void {
+		update_option(
+			Brevo_Leads_Capture_Settings::OPTION_SETTINGS,
+			array(
+				'error_messages' => array(
+					'brevo_permission_error' => 'Não foi possível concluir agora.',
+				),
+			)
+		);
+
+		$_GET['brevo_leads_capture'] = 'error';
+		$_GET['brevo_error']         = 'brevo_permission_error';
+
+		$this->assertSame( 'Não foi possível concluir agora.', $this->capture->current_error_message() );
+		$markup = do_shortcode( '[brevo_leads_capture_error]' );
+		$this->assertStringContainsString( 'es-operational-feedback', $markup );
+		$this->assertStringContainsString( 'data-feedback-tone="danger"', $markup );
+		$this->assertStringContainsString( 'es-badge', $markup );
+		$this->assertStringContainsString( 'Não foi possível concluir agora.', $markup );
+
+		unset( $_GET['brevo_leads_capture'], $_GET['brevo_error'] );
+	}
+
+	public function test_rest_request_returns_public_error_message_without_redirect(): void {
+		update_option(
+			Brevo_Leads_Capture_Settings::OPTION_SETTINGS,
+			array(
+				'error_messages' => array(
+					'invalid_lead' => 'Revise os campos marcados.',
+				),
+			)
+		);
+		$material_id = $this->create_material();
+		$request     = new WP_REST_Request( 'POST', '/' . Brevo_Leads_Capture_Free_Material_Capture::REST_NAMESPACE . Brevo_Leads_Capture_Free_Material_Capture::REST_ROUTE );
+
+		foreach ( $this->valid_request( $material_id, array( 'email' => 'invalid-email' ) ) as $key => $value ) {
+			$request->set_param( $key, $value );
+		}
+
+		$response = $this->capture->handle_rest_request( $request );
+		$data     = $response->get_data();
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertFalse( $data['success'] );
+		$this->assertSame( 'invalid_lead', $data['code'] );
+		$this->assertSame( 'Revise os campos marcados.', $data['message'] );
+		$this->assertArrayNotHasKey( 'redirect_url', $data );
+	}
+
+	public function test_rest_nonce_request_returns_capture_nonce(): void {
+		$response = $this->capture->handle_rest_nonce_request();
+		$data     = $response->get_data();
+
+		$this->assertIsString( $data['nonce'] );
+		$this->assertNotSame( '', $data['nonce'] );
+		$this->assertNotFalse( wp_verify_nonce( $data['nonce'], Brevo_Leads_Capture_Free_Material_Capture::NONCE_ACTION ) );
+	}
+
+	public function test_rest_request_returns_redirect_url_on_success(): void {
+		update_option(
+			Brevo_Leads_Capture_Settings::OPTION_SETTINGS,
+			array(
+				'success_message' => 'Tudo certo. Redirecionando para o material.',
+			)
+		);
+		$material_id = $this->create_material(
+			array(
+				Brevo_Leads_Capture_Free_Material_Capture::META_DELIVERY_URL => 'https://example.com/download',
+			)
+		);
+		$request = new WP_REST_Request( 'POST', '/' . Brevo_Leads_Capture_Free_Material_Capture::REST_NAMESPACE . Brevo_Leads_Capture_Free_Material_Capture::REST_ROUTE );
+
+		foreach ( $this->valid_request( $material_id ) as $key => $value ) {
+			$request->set_param( $key, $value );
+		}
+
+		$response = $this->capture->handle_rest_request( $request );
+		$data     = $response->get_data();
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertTrue( $data['success'] );
+		$this->assertSame( 'https://example.com/download', $data['redirect_url'] );
+		$this->assertSame( 'Tudo certo. Redirecionando para o material.', $data['message'] );
+	}
+
+	public function test_rest_request_accepts_rest_specific_capture_nonce_field(): void {
+		$material_id = $this->create_material(
+			array(
+				Brevo_Leads_Capture_Free_Material_Capture::META_DELIVERY_URL => 'https://example.com/download',
+			)
+		);
+		$request_data = $this->valid_request( $material_id );
+		$request      = new WP_REST_Request( 'POST', '/' . Brevo_Leads_Capture_Free_Material_Capture::REST_NAMESPACE . Brevo_Leads_Capture_Free_Material_Capture::REST_ROUTE );
+
+		$request_data[ Brevo_Leads_Capture_Free_Material_Capture::REST_NONCE_FIELD ] = $request_data[ Brevo_Leads_Capture_Free_Material_Capture::NONCE_FIELD ];
+		unset( $request_data[ Brevo_Leads_Capture_Free_Material_Capture::NONCE_FIELD ] );
+
+		foreach ( $request_data as $key => $value ) {
+			$request->set_param( $key, $value );
+		}
+
+		$response = $this->capture->handle_rest_request( $request );
+		$data     = $response->get_data();
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertTrue( $data['success'] );
+		$this->assertSame( 'https://example.com/download', $data['redirect_url'] );
 	}
 
 	public function test_uses_legacy_delivery_url_fallback(): void {
@@ -166,7 +285,18 @@ class FreeMaterialCaptureTest extends WP_UnitTestCase {
 
 	public function test_returns_controlled_error_when_brevo_fails(): void {
 		$this->client = new Brevo_Leads_Capture_Test_Client(
-			Brevo_Leads_Capture_Result::failure( 400, 'Brevo request returned an error.', array( 'body' => array( 'api-key' => 'secret' ) ) )
+			Brevo_Leads_Capture_Result::failure(
+				400,
+				'Brevo request returned an error.',
+				array(
+					'body'          => array( 'api-key' => 'secret' ),
+					'error_summary' => array(
+						'status_code' => 400,
+						'code'        => 'invalid_parameter',
+						'message'     => 'Attribute SOURCE does not exist.',
+					),
+				)
+			)
 		);
 		$this->capture = new Brevo_Leads_Capture_Free_Material_Capture(
 			brevo_leads_capture()->settings(),
@@ -178,8 +308,10 @@ class FreeMaterialCaptureTest extends WP_UnitTestCase {
 		$result = $this->capture->process_submission( $this->valid_request( $material_id ) );
 
 		$this->assertFalse( $result->is_successful() );
-		$this->assertSame( 'brevo_error', $result->data()['code'] );
+		$this->assertSame( 'brevo_invalid_parameter', $result->data()['code'] );
+		$this->assertArrayNotHasKey( 'allow_external_redirect', $result->data() );
 		$this->assertStringContainsString( 'brevo_leads_capture=error', $result->data()['redirect_url'] );
+		$this->assertStringContainsString( 'brevo_error=brevo_invalid_parameter', $result->data()['redirect_url'] );
 		$this->assertStringNotContainsString( 'secret', $result->message() );
 		$this->assertStringNotContainsString( 'secret', $result->data()['redirect_url'] );
 	}
