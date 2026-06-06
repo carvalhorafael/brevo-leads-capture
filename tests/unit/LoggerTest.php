@@ -24,6 +24,7 @@ class LoggerTest extends TestCase {
 					),
 				),
 				'status_code' => 400,
+				'message'     => 'Invalid lead@example.com phone +55 11 99999-9999',
 			)
 		);
 
@@ -31,5 +32,6 @@ class LoggerTest extends TestCase {
 		$this->assertSame( '[redacted]', $context['email'] );
 		$this->assertSame( '[redacted]', $context['nested']['payload'] );
 		$this->assertSame( 400, $context['status_code'] );
+		$this->assertSame( 'Invalid [redacted] phone [redacted]', $context['message'] );
 	}
 }

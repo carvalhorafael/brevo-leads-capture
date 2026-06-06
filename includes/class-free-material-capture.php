@@ -59,7 +59,7 @@ class Brevo_Leads_Capture_Free_Material_Capture {
 			? $data['redirect_url']
 			: $this->fallback_redirect_url( 0, 'error' );
 
-		wp_safe_redirect( $redirect_url, 303 );
+		$this->safe_redirect( $redirect_url, true === ( $data['allow_external_redirect'] ?? false ) );
 		exit;
 	}
 
@@ -117,21 +117,22 @@ class Brevo_Leads_Capture_Free_Material_Capture {
 					'material_id' => $material_id,
 					'list_id'     => $list_id,
 					'status_code' => $brevo_result->status_code(),
-					'payload'     => $payload,
-					'body'        => $brevo_result->data(),
+					'payload'     => $this->payload_summary( $payload ),
+					'brevo_error' => $this->brevo_error_summary( $brevo_result ),
 				)
 			);
 
-			return $this->failure( 'brevo_error', $material_id );
+			return $this->failure( $this->brevo_failure_code( $brevo_result ), $material_id );
 		}
 
 		return Brevo_Leads_Capture_Result::success(
 			200,
 			'Free material lead captured.',
 			array(
-				'redirect_url' => $delivery_url,
-				'material_id'  => $material_id,
-				'list_id'      => $list_id,
+				'redirect_url'             => $delivery_url,
+				'material_id'              => $material_id,
+				'list_id'                  => $list_id,
+				'allow_external_redirect' => true,
 			)
 		);
 	}
@@ -225,6 +226,64 @@ class Brevo_Leads_Capture_Free_Material_Capture {
 		);
 	}
 
+	/**
+	 * @param array<string, mixed> $payload
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function payload_summary( array $payload ): array {
+		$attributes = isset( $payload['attributes'] ) && is_array( $payload['attributes'] )
+			? array_keys( $payload['attributes'] )
+			: array();
+
+		return array(
+			'has_email'      => isset( $payload['email'] ) && '' !== $payload['email'],
+			'attribute_keys' => array_values( array_map( 'strval', $attributes ) ),
+			'list_ids'       => isset( $payload['listIds'] ) && is_array( $payload['listIds'] )
+				? array_values( array_map( 'intval', $payload['listIds'] ) )
+				: array(),
+			'update_enabled' => isset( $payload['updateEnabled'] ) ? (bool) $payload['updateEnabled'] : null,
+		);
+	}
+
+	/**
+	 * @return array<string, mixed>
+	 */
+	private function brevo_error_summary( Brevo_Leads_Capture_Result $result ): array {
+		$data = $result->data();
+
+		if ( isset( $data['error_summary'] ) && is_array( $data['error_summary'] ) ) {
+			return $data['error_summary'];
+		}
+
+		return array( 'status_code' => $result->status_code() );
+	}
+
+	private function brevo_failure_code( Brevo_Leads_Capture_Result $result ): string {
+		$summary = $this->brevo_error_summary( $result );
+		$code    = isset( $summary['code'] ) && is_string( $summary['code'] ) ? $summary['code'] : '';
+
+		switch ( $code ) {
+			case 'invalid_parameter':
+				return 'brevo_invalid_parameter';
+			case 'missing_parameter':
+				return 'brevo_missing_parameter';
+			case 'duplicate_parameter':
+				return 'brevo_duplicate_parameter';
+			case 'document_not_found':
+				return 'brevo_document_not_found';
+			case 'unauthorized':
+			case 'permission_denied':
+				return 'brevo_permission_error';
+		}
+
+		if ( 400 === $result->status_code() ) {
+			return 'brevo_bad_request';
+		}
+
+		return 'brevo_error';
+	}
+
 	private function fallback_redirect_url( int $material_id, string $code ): string {
 		$url = 0 < $material_id ? get_permalink( $material_id ) : '';
 
@@ -243,6 +302,35 @@ class Brevo_Leads_Capture_Free_Material_Capture {
 			),
 			$url
 		);
+	}
+
+	private function safe_redirect( string $redirect_url, bool $allow_external_redirect ): void {
+		if ( $allow_external_redirect ) {
+			$host = $this->redirect_host( $redirect_url );
+
+			if ( '' !== $host ) {
+				add_filter(
+					'allowed_redirect_hosts',
+					static function ( array $hosts, string $requested_host ) use ( $host ): array {
+						if ( strtolower( $requested_host ) === strtolower( $host ) && ! in_array( $host, $hosts, true ) ) {
+							$hosts[] = $host;
+						}
+
+						return $hosts;
+					},
+					10,
+					2
+				);
+			}
+		}
+
+		wp_safe_redirect( $redirect_url, 303 );
+	}
+
+	private function redirect_host( string $redirect_url ): string {
+		$host = wp_parse_url( $redirect_url, PHP_URL_HOST );
+
+		return is_string( $host ) ? $host : '';
 	}
 
 	/**

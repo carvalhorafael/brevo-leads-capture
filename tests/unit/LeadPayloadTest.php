@@ -59,6 +59,15 @@ class LeadPayloadTest extends TestCase {
 		$this->assertSame( 'Invalid email.', $result->message() );
 	}
 
+	public function test_normalizes_brazilian_whatsapp_without_country_code(): void {
+		$builder = new Brevo_Leads_Capture_Lead_Payload();
+
+		$this->assertSame( '+5511999999999', $builder->normalize_whatsapp( '11999999999' ) );
+		$this->assertSame( '+5511999999999', $builder->normalize_whatsapp( '55 11 99999-9999' ) );
+		$this->assertSame( '+5511999999999', $builder->normalize_whatsapp( '+55 (11) 99999-9999' ) );
+		$this->assertSame( '123456789', $builder->normalize_whatsapp( '123456789' ) );
+	}
+
 	public function test_ignores_empty_and_invalid_list_ids(): void {
 		$builder = new Brevo_Leads_Capture_Lead_Payload();
 

@@ -63,7 +63,10 @@ class Brevo_Leads_Capture_Brevo_Client {
 		return Brevo_Leads_Capture_Result::failure(
 			$status_code,
 			'Brevo request returned an error.',
-			array( 'body' => $decoded )
+			array(
+				'body'          => $decoded,
+				'error_summary' => $this->error_summary( $status_code, $decoded ),
+			)
 		);
 	}
 
@@ -148,5 +151,47 @@ class Brevo_Leads_Capture_Brevo_Client {
 		$decoded = json_decode( $body, true );
 
 		return is_array( $decoded ) ? $decoded : null;
+	}
+
+	/**
+	 * @param array<string, mixed>|null $decoded
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function error_summary( int $status_code, ?array $decoded ): array {
+		$summary = array( 'status_code' => $status_code );
+
+		if ( null === $decoded ) {
+			return $summary;
+		}
+
+		foreach ( array( 'code', 'message', 'error', 'type' ) as $key ) {
+			if ( isset( $decoded[ $key ] ) && is_scalar( $decoded[ $key ] ) ) {
+				$summary[ $key ] = (string) $decoded[ $key ];
+			}
+		}
+
+		if ( isset( $decoded['details'] ) && is_array( $decoded['details'] ) ) {
+			$summary['details'] = $this->scalar_array( $decoded['details'] );
+		}
+
+		return $summary;
+	}
+
+	/**
+	 * @param array<string, mixed> $values
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function scalar_array( array $values ): array {
+		$scalars = array();
+
+		foreach ( $values as $key => $value ) {
+			if ( is_scalar( $value ) || null === $value ) {
+				$scalars[ (string) $key ] = $value;
+			}
+		}
+
+		return $scalars;
 	}
 }

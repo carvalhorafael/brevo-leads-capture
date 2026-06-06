@@ -116,8 +116,8 @@ class Brevo_Leads_Capture_Elementor_Form_Action extends \ElementorPro\Modules\Fo
 			'Elementor Brevo request failed.',
 			array(
 				'status_code' => $result->status_code(),
-				'payload'     => $payload,
-				'body'        => $result->data(),
+				'payload'     => $this->payload_summary( $payload ),
+				'brevo_error' => $this->brevo_error_summary( $result ),
 			)
 		);
 
@@ -158,6 +158,39 @@ class Brevo_Leads_Capture_Elementor_Form_Action extends \ElementorPro\Modules\Fo
 		$list_id = isset( $settings['brevo_list_id'] ) ? max( 0, (int) $settings['brevo_list_id'] ) : 0;
 
 		return 0 < $list_id ? $list_id : $this->settings->default_list_id();
+	}
+
+	/**
+	 * @param array<string, mixed> $payload
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function payload_summary( array $payload ): array {
+		$attributes = isset( $payload['attributes'] ) && is_array( $payload['attributes'] )
+			? array_keys( $payload['attributes'] )
+			: array();
+
+		return array(
+			'has_email'      => isset( $payload['email'] ) && '' !== $payload['email'],
+			'attribute_keys' => array_values( array_map( 'strval', $attributes ) ),
+			'list_ids'       => isset( $payload['listIds'] ) && is_array( $payload['listIds'] )
+				? array_values( array_map( 'intval', $payload['listIds'] ) )
+				: array(),
+			'update_enabled' => isset( $payload['updateEnabled'] ) ? (bool) $payload['updateEnabled'] : null,
+		);
+	}
+
+	/**
+	 * @return array<string, mixed>
+	 */
+	private function brevo_error_summary( Brevo_Leads_Capture_Result $result ): array {
+		$data = $result->data();
+
+		if ( isset( $data['error_summary'] ) && is_array( $data['error_summary'] ) ) {
+			return $data['error_summary'];
+		}
+
+		return array( 'status_code' => $result->status_code() );
 	}
 
 	/**

@@ -65,7 +65,7 @@ class BrevoClientTest extends TestCase {
 			'secret-api-key',
 			static fn(): array => array(
 				'response' => array( 'code' => 400 ),
-				'body'     => '{"message":"invalid email"}',
+				'body'     => '{"code":"invalid_parameter","message":"Attribute SOURCE does not exist","details":{"field":"attributes.SOURCE","nested":{"ignored":"value"}}}',
 			)
 		);
 
@@ -74,6 +74,10 @@ class BrevoClientTest extends TestCase {
 		$this->assertFalse( $result->is_successful() );
 		$this->assertSame( 400, $result->status_code() );
 		$this->assertStringNotContainsString( 'secret-api-key', $result->message() );
+		$this->assertSame( 'invalid_parameter', $result->data()['error_summary']['code'] );
+		$this->assertSame( 'Attribute SOURCE does not exist', $result->data()['error_summary']['message'] );
+		$this->assertSame( 'attributes.SOURCE', $result->data()['error_summary']['details']['field'] );
+		$this->assertArrayNotHasKey( 'nested', $result->data()['error_summary']['details'] );
 	}
 
 	public function test_requires_configured_api_key(): void {
