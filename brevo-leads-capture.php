@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Brevo Leads Capture
  * Description: Centraliza capturas de leads WordPress e envio de contatos para o Brevo CRM.
- * Version: 0.1.0
+ * Version: 0.2.0
  * Requires at least: 6.4
  * Requires PHP: 8.1
  * Author: Rafael Carvalho
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'BREVO_LEADS_CAPTURE_VERSION', '0.1.0' );
+define( 'BREVO_LEADS_CAPTURE_VERSION', '0.2.0' );
 define( 'BREVO_LEADS_CAPTURE_FILE', __FILE__ );
 define( 'BREVO_LEADS_CAPTURE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BREVO_LEADS_CAPTURE_BASENAME', plugin_basename( __FILE__ ) );
