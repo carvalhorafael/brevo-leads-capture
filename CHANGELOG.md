@@ -2,6 +2,10 @@
 
 Todas as mudancas relevantes deste projeto devem ser documentadas aqui.
 
+## 0.2.0 - release
+
+- Preparacao de release.
+
 ## 0.1.0 - pre-release
 
 - Adiciona client Brevo centralizado para criar ou atualizar contatos.
