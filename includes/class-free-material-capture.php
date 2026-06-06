@@ -13,7 +13,12 @@ class Brevo_Leads_Capture_Free_Material_Capture {
 	public const ACTION = 'brevo_leads_capture_free_material';
 	public const NONCE_ACTION = 'brevo_leads_capture_free_material';
 	public const NONCE_FIELD = '_wpnonce';
+	public const REST_NONCE_FIELD = 'brevo_leads_capture_nonce';
 	public const HONEYPOT_FIELD = 'brevo_leads_capture_website';
+	public const REST_NAMESPACE = 'brevo-leads-capture/v1';
+	public const REST_ROUTE = '/free-material';
+	public const REST_NONCE_ROUTE = '/free-material/nonce';
+	public const SHORTCODE_ERROR_MESSAGE = 'brevo_leads_capture_error';
 
 	public const META_LIST_ID = '_brevo_leads_capture_list_id';
 	public const META_DELIVERY_URL = '_brevo_leads_capture_delivery_url';
@@ -48,6 +53,9 @@ class Brevo_Leads_Capture_Free_Material_Capture {
 	public function register_hooks(): void {
 		add_action( 'admin_post_nopriv_' . self::ACTION, array( $this, 'handle_request' ) );
 		add_action( 'admin_post_' . self::ACTION, array( $this, 'handle_request' ) );
+		add_action( 'rest_api_init', array( $this, 'register_rest_route' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_assets' ) );
+		add_shortcode( self::SHORTCODE_ERROR_MESSAGE, array( $this, 'render_error_message_shortcode' ) );
 	}
 
 	public function handle_request(): void {
@@ -61,6 +69,110 @@ class Brevo_Leads_Capture_Free_Material_Capture {
 
 		$this->safe_redirect( $redirect_url, true === ( $data['allow_external_redirect'] ?? false ) );
 		exit;
+	}
+
+	public function register_rest_route(): void {
+		register_rest_route(
+			self::REST_NAMESPACE,
+			self::REST_ROUTE,
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $this, 'handle_rest_request' ),
+				'permission_callback' => '__return_true',
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			self::REST_NONCE_ROUTE,
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $this, 'handle_rest_nonce_request' ),
+				'permission_callback' => '__return_true',
+			)
+		);
+	}
+
+	public function handle_rest_nonce_request(): WP_REST_Response {
+		$response = rest_ensure_response(
+			array(
+				'nonce' => wp_create_nonce( self::NONCE_ACTION ),
+			)
+		);
+
+		$response->header( 'Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0' );
+
+		return $response;
+	}
+
+	/**
+	 * @param WP_REST_Request $request REST request.
+	 */
+	public function handle_rest_request( WP_REST_Request $request ): WP_REST_Response {
+		$params = $request->get_params();
+		if ( isset( $params[ self::REST_NONCE_FIELD ] ) ) {
+			$params[ self::NONCE_FIELD ] = $params[ self::REST_NONCE_FIELD ];
+		}
+
+		$result = $this->process_submission( $params );
+		$data   = $result->data();
+
+		if ( $result->is_successful() ) {
+			return rest_ensure_response(
+				array(
+					'success'      => true,
+					'redirect_url' => $data['redirect_url'] ?? '',
+					'message'      => $this->settings->success_message(),
+				)
+			);
+		}
+
+		$code = isset( $data['code'] ) && is_string( $data['code'] ) ? $data['code'] : 'brevo_error';
+
+		return new WP_REST_Response(
+			array(
+				'success' => false,
+				'code'    => $code,
+				'message' => $this->public_error_message( $code ),
+			),
+			$this->rest_error_status( $code )
+		);
+	}
+
+	public function enqueue_frontend_assets(): void {
+		$style_path  = BREVO_LEADS_CAPTURE_DIR . 'assets/css/free-material-capture.css';
+		$script_path = BREVO_LEADS_CAPTURE_DIR . 'assets/js/free-material-capture.js';
+
+		wp_enqueue_style(
+			'brevo-leads-capture-free-material',
+			plugins_url( 'assets/css/free-material-capture.css', BREVO_LEADS_CAPTURE_FILE ),
+			array(),
+			$this->asset_version( $style_path )
+		);
+
+		wp_enqueue_script(
+			'brevo-leads-capture-free-material',
+			plugins_url( 'assets/js/free-material-capture.js', BREVO_LEADS_CAPTURE_FILE ),
+			array(),
+			$this->asset_version( $script_path ),
+			true
+		);
+
+		wp_localize_script(
+			'brevo-leads-capture-free-material',
+			'BrevoLeadsCaptureFreeMaterial',
+			array(
+				'restUrl'             => esc_url_raw( rest_url( self::REST_NAMESPACE . self::REST_ROUTE ) ),
+				'nonceUrl'            => esc_url_raw( rest_url( self::REST_NAMESPACE . self::REST_NONCE_ROUTE ) ),
+				'genericMessage'      => $this->settings->error_message( 'brevo_error' ),
+				'invalidNonceMessage' => $this->settings->error_message( 'invalid_nonce' ),
+				'successMessage'      => $this->settings->success_message(),
+				'successLabel'        => __( 'Sucesso', 'brevo-leads-capture' ),
+				'errorLabel'          => __( 'Erro', 'brevo-leads-capture' ),
+				'redirectLinkLabel'   => __( 'Acessar o material agora', 'brevo-leads-capture' ),
+				'redirectDelayMs'     => 5000,
+			)
+		);
 	}
 
 	/**
@@ -149,6 +261,34 @@ class Brevo_Leads_Capture_Free_Material_Capture {
 		return self::HONEYPOT_FIELD;
 	}
 
+	public function current_error_message(): string {
+		$request = $this->unslash_array( $_GET );
+
+		if ( 'error' !== $this->clean_string( $request['brevo_leads_capture'] ?? '' ) ) {
+			return '';
+		}
+
+		$code = $this->clean_string( $request['brevo_error'] ?? '' );
+		if ( ! in_array( $code, Brevo_Leads_Capture_Settings::ERROR_MESSAGE_CODES, true ) ) {
+			$code = 'brevo_error';
+		}
+
+		return $this->public_error_message( $code );
+	}
+
+	/**
+	 * @param mixed $atts Shortcode attributes.
+	 */
+	public function render_error_message_shortcode( $atts = array() ): string {
+		$message = $this->current_error_message();
+
+		return $this->error_message_markup( $message );
+	}
+
+	public function render_error_message(): void {
+		echo $this->error_message_markup( $this->current_error_message() );
+	}
+
 	private function client(): Brevo_Leads_Capture_Brevo_Client {
 		if ( null !== $this->client_factory ) {
 			$client = call_user_func( $this->client_factory );
@@ -222,6 +362,7 @@ class Brevo_Leads_Capture_Free_Material_Capture {
 				'code'         => $code,
 				'redirect_url' => $this->fallback_redirect_url( $material_id, $code ),
 				'material_id'  => $material_id,
+				'message'      => $this->public_error_message( $code ),
 			)
 		);
 	}
@@ -325,6 +466,53 @@ class Brevo_Leads_Capture_Free_Material_Capture {
 		}
 
 		wp_safe_redirect( $redirect_url, 303 );
+	}
+
+	private function public_error_message( string $code ): string {
+		return $this->settings->error_message( $code );
+	}
+
+	private function asset_version( string $path ): string {
+		$modified = file_exists( $path ) ? filemtime( $path ) : false;
+
+		return BREVO_LEADS_CAPTURE_VERSION . ( false !== $modified ? '-' . (string) $modified : '' );
+	}
+
+	private function rest_error_status( string $code ): int {
+		if ( 'invalid_nonce' === $code ) {
+			return 403;
+		}
+
+		if ( in_array( $code, array( 'missing_list', 'missing_delivery' ), true ) ) {
+			return 500;
+		}
+
+		return 400;
+	}
+
+	private function error_message_markup( string $message ): string {
+		$attributes = array(
+			'class'                             => 'brevo-leads-capture-message es-panel es-operational-feedback',
+			'data-brevo-leads-capture-message' => '',
+			'data-tone'                         => 'muted',
+			'data-padding'                      => 'md',
+			'data-feedback-tone'                => 'danger',
+			'role'                              => 'alert',
+			'aria-live'                         => 'polite',
+		);
+
+		if ( '' === $message ) {
+			$attributes['hidden'] = 'hidden';
+		}
+
+		$attribute_html = '';
+		foreach ( $attributes as $name => $value ) {
+			$attribute_html .= '' === $value
+				? ' ' . esc_attr( $name )
+				: ' ' . esc_attr( $name ) . '="' . esc_attr( $value ) . '"';
+		}
+
+		return '<div' . $attribute_html . '><span class="es-badge" data-tone="danger">' . esc_html__( 'Erro', 'brevo-leads-capture' ) . '</span><p class="es-operational-feedback__message">' . esc_html( $message ) . '</p></div>';
 	}
 
 	private function redirect_host( string $redirect_url ): string {

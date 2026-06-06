@@ -42,4 +42,18 @@ function brevo_leads_capture(): Brevo_Leads_Capture_Plugin {
 	return Brevo_Leads_Capture_Plugin::instance();
 }
 
+/**
+ * Returns the current public error message for the free material form.
+ */
+function brevo_leads_capture_get_free_material_error_message(): string {
+	return brevo_leads_capture()->free_material_capture()->current_error_message();
+}
+
+/**
+ * Renders the current public error message for the free material form.
+ */
+function brevo_leads_capture_render_free_material_error_message(): void {
+	brevo_leads_capture()->free_material_capture()->render_error_message();
+}
+
 brevo_leads_capture()->boot();

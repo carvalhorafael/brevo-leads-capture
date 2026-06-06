@@ -14,6 +14,7 @@ Campos disponíveis:
 
 - **API key Brevo**: chave usada para autenticar chamadas à API da Brevo.
 - **Lista padrão Brevo**: list ID usado quando um material gratuito não define uma lista própria.
+- **Mensagens de erro**: textos públicos exibidos perto do formulário quando a captura falha.
 
 ## Constantes
 
@@ -27,6 +28,18 @@ define( 'BREVO_LEADS_CAPTURE_DEFAULT_LIST_ID', 123 );
 Quando `BREVO_LEADS_CAPTURE_API_KEY` está definida, o campo de API key no admin fica desabilitado.
 
 Quando `BREVO_LEADS_CAPTURE_DEFAULT_LIST_ID` está definida, o campo de lista padrão no admin fica desabilitado.
+
+## Mensagens para usuários
+
+As mensagens configuráveis são indexadas pelos códigos internos controlados do
+plugin, como `invalid_lead`, `brevo_permission_error` e `brevo_error`.
+
+Esses textos são seguros para exibição pública e não recebem resposta bruta da
+Brevo. Detalhes técnicos continuam apenas nos logs quando `WP_DEBUG` está ativo.
+
+Se um campo de mensagem ficar vazio no admin, o plugin usa o texto padrão para
+aquele código. Use `brevo_error` como mensagem genérica para falhas não
+classificadas.
 
 ## Segurança
 

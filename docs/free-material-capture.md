@@ -117,6 +117,87 @@ Códigos internos possíveis:
 - `brevo_bad_request`
 - `brevo_error`
 
+As mensagens exibidas ao usuário para esses códigos são configuráveis em
+`Configurações > Brevo Leads Capture`, na seção `Mensagens para usuários`.
+A mensagem de sucesso também é configurável nessa seção. Campos vazios voltam
+ao texto padrão do plugin.
+
+Para renderizar a mensagem perto do formulário em um template PHP, use:
+
+```php
+<?php brevo_leads_capture_render_free_material_error_message(); ?>
+```
+
+Ou o shortcode:
+
+```text
+[brevo_leads_capture_error]
+```
+
+O helper lê apenas os query args controlados `brevo_leads_capture=error` e
+`brevo_error=<codigo-controlado>`, resolve o texto configurado e escapa a saída.
+O markup segue o padrão `OperationalFeedback` do Executive Signal Design System,
+com `es-operational-feedback`, badge `es-badge` e
+`data-feedback-tone="danger"`.
+
+## Endpoint REST para JavaScript
+
+Além do fallback por `admin-post.php`, o plugin registra:
+
+```text
+POST /wp-json/brevo-leads-capture/v1/free-material
+GET /wp-json/brevo-leads-capture/v1/free-material/nonce
+```
+
+Antes do POST, o JavaScript chama a rota `nonce` sem cookies e com cache
+desabilitado para obter um nonce fresco. No envio REST, esse valor é enviado em
+`brevo_leads_capture_nonce`, não em `_wpnonce`, porque o WordPress reserva
+`_wpnonce` em requisições REST para a verificação nativa `wp_rest`. Isso evita
+falhas quando o HTML do formulário foi servido por cache com um nonce antigo e
+também evita que a REST API bloqueie a chamada antes do handler do plugin.
+
+O endpoint POST recebe os mesmos campos do formulário e executa a mesma
+validação de nonce, honeypot, material, payload e envio para Brevo. Em sucesso,
+retorna:
+
+```json
+{
+  "success": true,
+  "redirect_url": "https://example.com/download",
+  "message": "Cadastro recebido. Você será redirecionado para a página do material em 5 segundos."
+}
+```
+
+No fluxo JavaScript, o plugin limpa os campos visíveis do formulário, exibe
+`message` em um `OperationalFeedback` com `data-feedback-tone="success"`, mostra
+um link para acessar o material imediatamente e redireciona automaticamente após
+5 segundos.
+
+Em falha, retorna HTTP `400`, `403` para nonce inválido ou `500` para
+configuração obrigatória ausente, sempre com payload público:
+
+```json
+{
+  "success": false,
+  "code": "invalid_lead",
+  "message": "Revise os dados informados e tente novamente."
+}
+```
+
+O JavaScript do plugin intercepta formulários de material gratuito, chama esse
+endpoint e exibe `message` no container `data-brevo-leads-capture-message`.
+Quando precisa criar o container, usa o mesmo markup `OperationalFeedback` de
+feedback, com `success` para captura concluída e `danger` para erro.
+O script também envia o POST sem cookies. Como esse endpoint é público e já
+valida o nonce específico da captura, isso evita que a autenticação por cookie
+da REST API bloqueie a chamada com `rest_cookie_invalid_nonce` antes do handler
+do plugin. Sem JavaScript, o formulário continua funcionando pelo redirect
+documentado.
+
+Depois de exibir uma mensagem vinda do fallback com redirect, o script remove
+`brevo_leads_capture` e `brevo_error` da URL com `history.replaceState()`, para
+que a mensagem não reapareça apenas por atualizar a página.
+
 ## Diagnóstico local de erro Brevo
 
 Quando `WP_DEBUG` está ativo, falhas da API Brevo são registradas com prefixo:
